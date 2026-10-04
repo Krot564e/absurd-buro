@@ -56,6 +56,12 @@ db.exec(`
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
 
+  CREATE TABLE IF NOT EXISTS ip_blocks (
+    ip      TEXT PRIMARY KEY,
+    until   INTEGER NOT NULL,
+    strikes INTEGER NOT NULL DEFAULT 1
+  );
+
   CREATE INDEX IF NOT EXISTS idx_login_log_ip ON login_log(ip, created_at);
   CREATE INDEX IF NOT EXISTS idx_login_log_email ON login_log(email, created_at);
   CREATE INDEX IF NOT EXISTS idx_requests_user ON requests(user_id, created_at);
@@ -139,6 +145,38 @@ function generateTicket() {
   return `АБ-${out.slice(0, 4)}-${out.slice(4)}`;
 }
 
+// ---------------------------------------------------------------- Блокировки IP
+
+// Живут в базе, а не в памяти процесса: иначе перезапуск сервера
+// обнулял бы все накопленные блокировки, и бот получал «чистый» счётчик.
+function blockIp(ip, minutes) {
+  const until = Date.now() + minutes * 60_000;
+  db.prepare(
+    `INSERT INTO ip_blocks (ip, until, strikes) VALUES (?, ?, 1)
+     ON CONFLICT(ip) DO UPDATE SET until = excluded.until, strikes = strikes + 1`
+  ).run(ip, until);
+  if (Math.random() < 0.05) {
+    db.prepare('DELETE FROM ip_blocks WHERE until <= ?').run(Date.now());
+  }
+  return until;
+}
+
+const getBlock = db.prepare('SELECT ip, until, strikes FROM ip_blocks WHERE ip = ?');
+
+function isBlocked(ip) {
+  const row = getBlock.get(ip);
+  if (!row) return false;
+  if (row.until <= Date.now()) {
+    db.prepare('DELETE FROM ip_blocks WHERE ip = ?').run(ip);
+    return false;
+  }
+  return { ip: row.ip, until: row.until, strikes: row.strikes };
+}
+
+function clearBlock(ip) {
+  db.prepare('DELETE FROM ip_blocks WHERE ip = ?').run(ip);
+}
+
 module.exports = {
   db,
   createUser,
@@ -156,6 +194,9 @@ module.exports = {
   generateTicket,
   logLogin,
   logEvent,
+  blockIp,
+  isBlocked,
+  clearBlock,
   listEvents,
   listLoginLog,
   countEventsSince,

@@ -127,33 +127,22 @@ function clearCaptchaNeed(req) {
   if (req.session) req.session.captchaNeeded = false;
 }
 
-// ---------------------------------------------------------------- Блокировка по IP (в памяти)
+// ---------------------------------------------------------------- Блокировка по IP
 
-const blocks = new Map();
+// Сами блокировки живут в базе (db.blockIp и др.): память процесса обнуляется
+// при каждом перезапуске сервера, а боты как раз и рассчитывают на сброс.
+const db = require('./db');
 
 function blockIp(ip, minutes) {
-  const until = Date.now() + minutes * 60_000;
-  blocks.set(ip, { until, strikes: (blocks.get(ip)?.strikes || 0) + 1 });
-  // чистим протухшие записи, чтобы Map не рос бесконечно
-  if (blocks.size > 10_000) {
-    const now = Date.now();
-    for (const [key, val] of blocks) if (val.until <= now) blocks.delete(key);
-  }
-  return until;
+  db.blockIp(ip, minutes);
 }
 
 function isBlocked(ip) {
-  const entry = blocks.get(ip);
-  if (!entry) return false;
-  if (entry.until <= Date.now()) {
-    blocks.delete(ip);
-    return false;
-  }
-  return entry;
+  return db.isBlocked(ip);
 }
 
 function clearBlock(ip) {
-  blocks.delete(ip);
+  db.clearBlock(ip);
 }
 
 module.exports = {
