@@ -1,0 +1,39 @@
+<%- include('partials/head') %>
+
+<h1>Регистрация гражданина</h1>
+<p class="lede">Нужен email, никнейм и пароль. Пароль — от <%= minLength %> символов, и это не формальность.</p>
+
+<% if (error) { %><div class="alert"><%= error %></div><% } %>
+
+<form method="post" action="/register" class="doc">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <input type="hidden" name="_ts" value="<%= Date.now() %>">
+
+  <div class="honeypot" aria-hidden="true">
+    <label>Не заполняй это поле</label>
+    <input type="text" name="website" tabindex="-1" autocomplete="off">
+  </div>
+
+  <label for="email">EMAIL</label>
+  <input type="email" id="email" name="email" required autocomplete="email" value="<%= values.email %>">
+
+  <label for="username">НИКНЕЙМ (3–24: латиница, цифры, _)</label>
+  <input type="text" id="username" name="username" required autocomplete="username" value="<%= values.username %>">
+
+  <label for="password">ПАРОЛЬ (мин. <%= minLength %>)</label>
+  <input type="password" id="password" name="password" required autocomplete="new-password">
+
+  <% if (needCaptcha) { %>
+    <label for="captcha">ПРИМЕР: <%= captchaQuestion %> = ?</label>
+    <input type="text" id="captcha" name="captcha" inputmode="numeric" required autocomplete="off">
+  <% } %>
+
+  <button type="submit">Зарегистрироваться</button>
+</form>
+
+<div class="note">
+  <strong>Почему пароль такой длинный.</strong> Боты перебирают пароли по спискам утечек.
+  Короткий пароль вида <code>Nikita2008</code> ломается за секунды. Пароль из 12+ случайных
+  символов — практически нереально. Хранится он у нас не в открытом виде, а в виде bcrypt-хеша,
+  так что даже мы его не видим. Менеджер паролей — обязательно.
+</div>

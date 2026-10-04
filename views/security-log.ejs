@@ -1,0 +1,65 @@
+<%- include('partials/head') %>
+
+<h1>Журнал безопасности</h1>
+<p class="lede">Кто и откуда пытался что-то сделать.</p>
+
+<% if (!authorized) { %>
+
+  <% if (error) { %><div class="alert"><%= error %></div><% } %>
+
+  <form method="post" action="/security-log" class="doc">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <label for="password">ПАРОЛЬ ЖУРНАЛА</label>
+    <input type="password" id="password" name="password" required autocomplete="current-password">
+    <button type="submit">Открыть журнал</button>
+  </form>
+
+<% } else { %>
+
+  <h2>Сводка за сутки</h2>
+  <div class="doc">
+    <% if (!summary.length) { %>
+      <p>За последние сутки ничего подозрительного не произошло. Тишина.</p>
+    <% } else { %>
+      <ul class="kv">
+        <% summary.forEach(function (s) { %>
+          <li><span><%= s.kind %></span><span class="status"><%= s.n %></span></li>
+        <% }); %>
+      </ul>
+    <% } %>
+  </div>
+
+  <h2>События</h2>
+  <div class="doc">
+    <% if (!events.length) { %>
+      <p>Пусто.</p>
+    <% } else { %>
+      <ul class="kv">
+        <% events.forEach(function (e) { %>
+          <li>
+            <span><%= e.kind %><%= e.detail ? ' — ' + e.detail : '' %></span>
+            <span class="status"><%= e.ip %> · <%= (e.created_at || '').slice(5, 16) %></span>
+          </li>
+        <% }); %>
+      </ul>
+    <% } %>
+  </div>
+
+  <h2>Попытки входа</h2>
+  <div class="doc">
+    <ul class="kv">
+      <% logins.forEach(function (l) { %>
+        <li>
+          <span><%= l.ok ? 'успех' : 'отказ' %> <%= l.email || '(пусто)' %> <%= l.reason || '' %></span>
+          <span class="status"><%= l.ip %> · <%= (l.created_at || '').slice(5, 16) %></span>
+        </li>
+      <% }); %>
+    </ul>
+  </div>
+
+  <p class="note">
+    Если тут много <code>captcha-failed</code> и <code>login-failed</code> с чужих адресов —
+    это боты. Они уже упёрлись в лимиты и ничего не получили.
+  </p>
+
+<% } %>

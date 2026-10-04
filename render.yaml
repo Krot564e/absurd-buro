@@ -1,0 +1,28 @@
+# Бесплатный деплой на Render: https://render.com
+# 1. Залей проект в GitHub
+# 2. Render → New → Blueprint → укажи репозиторий
+# 3. Render сам подставит SESSION_SECRET и задеплоит
+services:
+  - type: web
+    name: absurd-buro
+    runtime: node
+    plan: free
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: LIMIT_GLOBAL
+        value: "300"
+      - key: LIMIT_LOGIN
+        value: "5"
+      - key: LIMIT_REGISTER
+        value: "3"
+      - key: CAPTCHA_AFTER
+        value: "3"
+      # Задай это сам на Render, иначе журнал /security-log будет отдавать 404.
+      - key: LOG_PASSWORD
+        sync: false
