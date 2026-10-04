@@ -113,6 +113,8 @@ async function main() {
       ...process.env,
       PORT: String(PORT),
       DB_FILE,
+      // Тест ходит по http, secure-cookie браузер бы не сохранил.
+      SECURE_COOKIES: '0',
       LIMIT_GLOBAL: '10000',
       LIMIT_REGISTER: '100',
       LIMIT_POST: '100',
@@ -186,6 +188,20 @@ async function runAll() {
     form: { _ts: OLD_TS, email: 'x@b.ru', username: 'xsr', password: GOOD_PASSWORD },
   });
   ok('POST без CSRF-токена отклонён (403)', noCsrf.status === 403, `got ${noCsrf.status}`);
+
+  const badOrigin = await req('/register', {
+    method: 'POST',
+    headers: { origin: 'http://zlovredniy-site.example' },
+    form: { _csrf: csrf, _ts: OLD_TS, email: 'o@b.ru', username: 'osr', password: GOOD_PASSWORD },
+  });
+  ok('POST с чужим Origin отклонён', badOrigin.status === 403 && badOrigin.text.includes('чужого домена'), `got ${badOrigin.status}`);
+
+  const sameOrigin = await req('/register', {
+    method: 'POST',
+    headers: { origin: BASE },
+    form: { _csrf: csrf, _ts: OLD_TS, email: 's@b.ru', username: 'ssr', password: GOOD_PASSWORD },
+  });
+  ok('POST со своим Origin проходит валидацию (не 403)', sameOrigin.status !== 403, `got ${sameOrigin.status}`);
 
   const badCsrf = await req('/register', {
     method: 'POST',

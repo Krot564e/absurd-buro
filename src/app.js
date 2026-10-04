@@ -16,6 +16,16 @@ const PORT = Number(process.env.PORT || 3000);
 const IS_PROD = process.env.NODE_ENV === 'production';
 const SECRET = process.env.SESSION_SECRET;
 
+// HTTPS требует, чтобы cookie не улетали по http. На localhost (http) флаг secure
+// включать нельзя, поэтому он отдельной переменной, а не привязан к NODE_ENV.
+const SECURE_COOKIES = process.env.SECURE_COOKIES === '1';
+const SECRET_ENV = SECRET && !SECRET.startsWith('ЗАМЕНИ');
+// Заглушки из .env.example не считаются паролем: иначе журнал был бы открыт всем.
+const LOG_PASSWORD =
+  process.env.LOG_PASSWORD && !/^(ЗАМЕНИ|СГЕНЕРИРУЙ|CHANGE_?ME)/i.test(process.env.LOG_PASSWORD)
+    ? process.env.LOG_PASSWORD
+    : '';
+
 // Лимиты вынесены в переменные окружения: на бесплатном хостинге за одним IP сидит
 // куча юзеров, дефолты приходится крутить.
 const LIMIT = {
@@ -28,11 +38,10 @@ const LIMIT = {
 // После скольких неудачных попыток входа включается капча.
 const CAPTCHA_AFTER = Number(process.env.CAPTCHA_AFTER ?? 3);
 // Пароль на журнал /security-log. Если не задан — страницы не существует.
-const LOG_PASSWORD = process.env.LOG_PASSWORD || '';
 
-if (!SECRET || SECRET.length < 32) {
+if (!SECRET || !SECRET_ENV || SECRET.length < 32) {
   console.error('\n  СТОП: нужен SESSION_SECRET длиной от 32 символов.');
-  console.error('  Скопируй .env.example в .env и сгенерируй ключ:\n');
+  console.error('  Сгенерируй его одной командой (выведет ключ, вставь в .env):\n');
   console.error('  node -e "console.log(require(\'crypto\').randomBytes(48).toString(\'base64url\'))"\n');
   process.exit(1);
 }
@@ -58,7 +67,7 @@ app.use(
         baseUri: ["'self'"],
       },
     },
-    hsts: IS_PROD ? undefined : false,
+    hsts: SECURE_COOKIES ? undefined : false,
     referrerPolicy: { policy: 'no-referrer' },
   })
 );
@@ -74,14 +83,41 @@ app.use(
     maxAge: 1000 * 60 * 60 * 24 * 7,
     httpOnly: true,
     sameSite: 'lax',
-    secure: IS_PROD,
+    secure: SECURE_COOKIES,
   })
 );
-
 app.use(sec.csrf);
 app.use((req, res, next) => {
   res.locals.user = req.session && req.session.userId ? db.getUserById.get(req.session.userId) : null;
   res.locals.now = new Date().toISOString();
+  next();
+});
+
+// Проверка Origin для POST: страница с чужого домена не должна уметь слать формы
+// нам даже без CSRF-токена. Если Origin нет (curl, Kali, старые клиенты) — пропускаем,
+// CSRF-токен всё равно защищает.
+app.use((req, res, next) => {
+  if (req.method !== 'POST') return next();
+  const origin = req.get('origin');
+  if (!origin) return next();
+
+  let originHost = '';
+  try {
+    originHost = new URL(origin).host;
+  } catch {
+    return res.status(403).render('error', {
+      title: 'Запрос отклонён',
+      message: 'Origin не распознан, запрос отброшен.',
+    });
+  }
+
+  if (originHost !== req.get('host')) {
+    db.logEvent({ ip: req.ip, kind: 'bad-origin', detail: originHost });
+    return res.status(403).render('error', {
+      title: 'Запрос отклонён',
+      message: 'Запрос пришёл с чужого домена. Так не выйдет.',
+    });
+  }
   next();
 });
 

@@ -13,6 +13,9 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      # На хостинге сайт отдаётся по HTTPS, поэтому cookie обязаны быть secure.
+      - key: SECURE_COOKIES
+        value: "1"
       - key: SESSION_SECRET
         generateValue: true
       - key: LIMIT_GLOBAL
