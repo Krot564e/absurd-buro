@@ -87,6 +87,15 @@ app.use(
   })
 );
 app.use(sec.csrf);
+
+// Флаг secure ставится только когда соединение действительно HTTPS. При secure:true
+// по http cookie-session молча не отдаёт cookie вообще — сессия теряется.
+// cookie-session кладёт настройки в req.sessionOptions, их можно менять на лету.
+app.use((req, res, next) => {
+  req.sessionOptions.secure = SECURE_COOKIES && req.secure;
+  next();
+});
+
 app.use((req, res, next) => {
   res.locals.user = req.session && req.session.userId ? db.getUserById.get(req.session.userId) : null;
   res.locals.now = new Date().toISOString();
