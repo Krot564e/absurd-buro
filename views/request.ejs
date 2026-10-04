@@ -1,12 +1,24 @@
 <%- include('partials/head') %>
 
 <h1><%= request.title %></h1>
-<p><%= request.ticket %></p>
+<p class="lede">Заявка <%= request.ticket %> от гражданина №<%= request.user_id %></p>
 
-<ul>
-  <li>Категория: <%= request.category %></li>
-  <li>Дата: <%= (request.created_at || '').slice(0, 16).replace('T', ' ') %></li>
-  <li>Статус: <%= request.status %></li>
-</ul>
+<div class="stamp">НА РАССМОТРЕНИИ</div>
 
-<p><%= request.justification %></p>
+<div class="ticket"><%= request.ticket %></div>
+
+<div class="doc">
+  <ul class="kv">
+    <li><span>КАТЕГОРИЯ</span><span><%= request.category %></span></li>
+    <li><span>ПОДАНА</span><span><%= (request.created_at || '').slice(0, 16).replace('T', ' ') %></span></li>
+    <li><span>СТАТУС</span><span class="status"><%= request.status %></span></li>
+  </ul>
+
+  <h2>Обоснование</h2>
+  <p><%= request.justification %></p>
+</div>
+
+<div class="note">
+  Срок рассмотрения — бессрочный. Если заявка не рассмотрели за 30 лет, она считается
+  рассмотренной по умолчанию.
+</div>

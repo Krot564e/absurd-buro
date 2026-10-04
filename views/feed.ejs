@@ -1,16 +1,23 @@
 <%- include('partials/head') %>
 
-<h1>Лента</h1>
+<h1>Лента абсурда</h1>
+<p class="lede">Последние заявки граждан. Все имена и формулировки — реальные.</p>
 
 <% if (!requests.length) { %>
-  <p>Пока пусто.</p>
+  <div class="doc"><p>Лента пуста. Фронт работ не ведётся.</p></div>
 <% } else { %>
-  <ul>
-    <% requests.forEach(function (r) { %>
-      <li>
-        <a href="/r/<%= r.id %>"><%= r.ticket %></a> — <%= r.title %><br>
-        <%= r.justification.slice(0, 90) %><%= r.justification.length > 90 ? '…' : '' %>
-      </li>
-    <% }); %>
-  </ul>
+  <div class="doc">
+    <ul class="kv">
+      <% requests.forEach(function (r) { %>
+        <li>
+          <span>
+            <a href="/r/<%= r.id %>"><%= r.ticket %></a> —
+            <%= r.title %>
+            <br><span class="quote"><%= r.justification.slice(0, 90) %><%= r.justification.length > 90 ? '…' : '' %></span>
+          </span>
+          <span class="status"><%= r.category %></span>
+        </li>
+      <% }); %>
+    </ul>
+  </div>
 <% } %>

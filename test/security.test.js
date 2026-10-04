@@ -250,7 +250,7 @@ async function runAll() {
 
   const short = await req('/requests', {
     method: 'POST',
-    form: { _csrf: lcsrf, _ts: OLD_TS, category: 'Первая', title: 'коротко', justification: 'мало текста для обоснования, но всё же' },
+    form: { _csrf: lcsrf, _ts: OLD_TS, category: 'Право', title: 'коротко', justification: 'мало текста для обоснования, но всё же' },
   });
   ok('слишком короткое обоснование отклонено', short.status === 400);
 
@@ -261,9 +261,9 @@ async function runAll() {
     form: {
       _csrf: rcsrf,
       _ts: OLD_TS,
-      category: 'Первая',
-      title: 'Тестовая запись',
-      justification: 'Это тестовый текст достаточной длины для прохождения проверки формы.',
+      category: 'Право',
+      title: 'Разрешить мне дышать вверх ногами',
+      justification: 'Я не могу дышать вверх ногами, потому что мои лёгкие не зарегистрированы как водоплав.',
     },
   });
   ok('заявка создаётся', created.status === 302 && /^\/r\/\d+$/.test(created.headers.get('location') || ''), created.headers.get('location'));
@@ -274,14 +274,14 @@ async function runAll() {
   ok('на странице есть номер заявки', /АБ-[A-Z2-9]{4}-[A-Z2-9]{4}/.test(ticketPage.text));
 
   const feed = await req('/feed');
-  ok('лента записей открыта', feed.status === 200 && feed.text.includes('Тестовая запись'));
+  ok('лента заявок открыта', feed.status === 200 && feed.text.includes('вверх ногами'));
 
   const xss = await req('/requests', {
     method: 'POST',
     form: {
       _csrf: rcsrf,
       _ts: OLD_TS,
-      category: 'Первая',
+      category: 'Право',
       title: '<script>alert(1)</script>',
       justification: 'Пытаюсь засунуть скрипт в заявку, чтобы проверить экранирование вывода в шаблоне.',
     },
@@ -314,7 +314,7 @@ async function runAll() {
 
   // ---------------------------------------------------------------- капча
   const captchaPage = await req('/login');
-  const captchaMatch = captchaPage.text.match(/Пример:\s*(\d+)\s*\+\s*(\d+)/);
+  const captchaMatch = captchaPage.text.match(/ПРИМЕР:\s*(\d+)\s*\+\s*(\d+)/);
   ok('после серии неудач на форме появляется капча', Boolean(captchaMatch));
   const ccsrf = await csrfFrom(captchaPage);
 
@@ -325,7 +325,7 @@ async function runAll() {
   ok('неверная капча не пускает', wrongCaptcha.status === 400 && wrongCaptcha.text.includes('Ответь на пример'));
 
   const page2 = await req('/login');
-  const m2 = page2.text.match(/Пример:\s*(\d+)\s*\+\s*(\d+)/);
+  const m2 = page2.text.match(/ПРИМЕР:\s*(\d+)\s*\+\s*(\d+)/);
   const answer = m2 ? Number(m2[1]) + Number(m2[2]) : 0;
   const withCaptcha = await req('/login', {
     method: 'POST',

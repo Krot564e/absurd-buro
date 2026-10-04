@@ -1,14 +1,26 @@
 <%- include('partials/head') %>
 
-<h1>Мои записи</h1>
-<p><%= user.username %></p>
+<h1>Мои заявки</h1>
+<p class="lede">Гражданин: <%= user.username %> · с нами с <%= (user.created_at || '').slice(0, 10) %></p>
 
 <% if (!requests.length) { %>
-  <p>Пока ничего нет. <a href="/">Создать</a></p>
+  <div class="doc">
+    <p>Пока ни одной заявки. Это подозрительно и некрасиво.</p>
+    <p><a href="/">Подать первую</a></p>
+  </div>
 <% } else { %>
-  <ul>
-    <% requests.forEach(function (r) { %>
-      <li><a href="/r/<%= r.id %>"><%= r.ticket %></a> — <%= r.title %></li>
-    <% }); %>
-  </ul>
+  <div class="doc">
+    <ul class="kv">
+      <% requests.forEach(function (r) { %>
+        <li>
+          <span><a href="/r/<%= r.id %>"><%= r.ticket %></a> — <%= r.title %></span>
+          <span class="status"><%= r.status %></span>
+        </li>
+      <% }); %>
+    </ul>
+  </div>
 <% } %>
+
+<div class="note">
+  Все заявки граждан видны в <a href="/feed">общей ленте</a> — это бюрократия, она публична.
+</div>

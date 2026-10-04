@@ -186,16 +186,27 @@ app.use(['/login', '/register'], blockGuard);
 // ------------------------------------------------------------------ Публичные
 
 app.get('/', (req, res) => {
+  const stats = db.countRequests.get();
   res.render('index', {
-    title: 'Главная',
-    categories: CATEGORIES,
-    values: { category: CATEGORIES[0], title: '', justification: '' },
+    title: 'Подать заявку',
+    stats,
+    examples: [
+      'Разрешить мне дышать вверх ногами',
+      'Узаконить мой гулкий зонт',
+      'Признать мою корову соседом по этажу',
+      'Выдать мне лицензию на ленивое воскресенье',
+      'Разрешить пить воду только вверх ногами',
+      'Объявить мою тень отдельным гражданином',
+      'Разрешить мне говорить только гласными',
+      'Утвердить мой нос как орган власти',
+    ],
+    values: { category: '', title: '', justification: '' },
     error: null,
   });
 });
 
 app.get('/feed', (req, res) => {
-  res.render('feed', { title: 'Лента', requests: db.listAllRequests.all() });
+  res.render('feed', { title: 'Лента абсурда', requests: db.listAllRequests.all() });
 });
 
 app.get('/r/:id', (req, res) => {
@@ -368,7 +379,7 @@ app.get('/my', (req, res) => {
   res.render('my', { title: 'Мои заявки', requests: db.listRequestsByUser.all(res.locals.user.id) });
 });
 
-const CATEGORIES = ['Первая', 'Вторая', 'Третья', 'Прочее'];
+const CATEGORIES = ['Бытовое абсурдство', 'Физиология', 'Право', 'Эстетика', 'Прочее'];
 
 const postRequestLimit = rateLimit({
   windowMs: 60 * 60_000,
@@ -388,16 +399,17 @@ app.post('/requests', postRequestLimit, sec.botTrap, sec.verifyCsrf, (req, res) 
 
   const rerender = (error) =>
     res.status(400).render('index', {
-      title: 'Главная',
-      categories: CATEGORIES,
+      title: 'Подать заявку',
+      stats: db.countRequests.get(),
+      examples: [],
       values: { category, title, justification },
       error,
     });
 
-  if (!CATEGORIES.includes(category)) return rerender('Такой категории нет.');
-  if (title.length < 8 || title.length > 140) return rerender('Заголовок: от 8 до 140 символов.');
+  if (!CATEGORIES.includes(category)) return rerender('Такой категории у нас нет.');
+  if (title.length < 8 || title.length > 140) return rerender('Суть заявки: от 8 до 140 символов.');
   if (justification.length < 20 || justification.length > 2000) {
-    return rerender('Текст: от 20 до 2000 символов.');
+    return rerender('Обоснование: от 20 до 2000 символов. Без обоснования заявка не рассматривается.');
   }
 
   const info = db.createRequest.run({
@@ -486,9 +498,9 @@ app.use((err, req, res, next) => {
     return res.status(400).render('error', { title: 'Слишком быстро', message: 'Форма была отправлена раньше, чем человек успевает её заполнить.' });
   }
   console.error(err);
-  res.status(500).render('error', { title: 'Ошибка', message: 'Внутренняя ошибка сервера.' });
+  res.status(500).render('error', { title: 'Абсурд сломался', message: 'Внутренняя ошибка. Мы её уже заметили и смеёмся.' });
 });
 
 app.listen(PORT, () => {
-  console.log(`  Сервер работает:  http://localhost:${PORT}`);
+  console.log(`  Абсурдбюро работает:  http://localhost:${PORT}`);
 });
