@@ -1,35 +1,34 @@
 <%- include('partials/head') %>
 
 <h1>Вход</h1>
-<p class="lede">Для граждан, помнящих свой пароль.</p>
 
-<% if (error) { %><div class="alert"><%= error %></div><% } %>
+<% if (error) { %><p><%= error %></p><% } %>
 
-<form method="post" action="/login" class="doc">
+<form method="post" action="/login">
   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
   <input type="hidden" name="_ts" value="<%= Date.now() %>">
 
-  <div class="honeypot" aria-hidden="true">
+  <div style="display:none" aria-hidden="true">
     <label>Не заполняй это поле</label>
     <input type="text" name="website" tabindex="-1" autocomplete="off">
   </div>
 
-  <label for="login">EMAIL ИЛИ НИКНЕЙМ</label>
-  <input type="text" id="login" name="login" required autocomplete="username" value="<%= values.login %>">
+  <p>
+    <label for="login">Email или никнейм</label><br>
+    <input type="text" id="login" name="login" required autocomplete="username" value="<%= values.login %>">
+  </p>
 
-  <label for="password">ПАРОЛЬ</label>
-  <input type="password" id="password" name="password" required autocomplete="current-password">
+  <p>
+    <label for="password">Пароль</label><br>
+    <input type="password" id="password" name="password" required autocomplete="current-password">
+  </p>
 
   <% if (needCaptcha) { %>
-    <label for="captcha">ПРИМЕР: <%= captchaQuestion %> = ?</label>
-    <input type="text" id="captcha" name="captcha" inputmode="numeric" required autocomplete="off">
+    <p>
+      <label for="captcha">Пример: <%= captchaQuestion %> = ?</label><br>
+      <input type="text" id="captcha" name="captcha" inputmode="numeric" required autocomplete="off">
+    </p>
   <% } %>
 
   <button type="submit">Войти</button>
 </form>
-
-<div class="note">
-  После 5 неудачных попыток с одного адреса вход закрывается на 15 минут.
-  Если ты гражданин и паришься, что тебя заблокировали — подожди, это честный лимит,
-  а не наезд.
-</div>

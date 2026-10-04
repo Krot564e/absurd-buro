@@ -3,21 +3,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title><%= title %> — Абсурдбюро</title>
-  <link rel="stylesheet" href="/public/style.css">
-  <link rel="icon" href="/public/favicon.svg" type="image/svg+xml">
+  <title><%= title %></title>
 </head>
 <body>
-  <header class="topbar">
-    <a class="brand" href="/">АБСУРДБЮРО</a>
+  <header>
     <nav>
       <% if (user) { %>
-        <a href="/my">Мои заявки</a>
-        <form method="post" action="/logout" class="inline">
+        <a href="/my">Мои записи</a>
+        <form method="post" action="/logout">
           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-          <button type="submit" class="linklike">Выйти (<%= user.username %>)</button>
+          <button type="submit">Выйти (<%= user.username %>)</button>
         </form>
       <% } else { %>
+        <a href="/">Главная</a>
         <a href="/feed">Лента</a>
         <a href="/login">Вход</a>
         <a href="/register">Регистрация</a>

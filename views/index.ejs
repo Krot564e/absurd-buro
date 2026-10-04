@@ -1,58 +1,40 @@
 <%- include('partials/head') %>
 
-<h1>Абсурдбюро</h1>
-<p class="lede">
-  Государственный орган по рассмотрению абсурдных заявок.
-  Подай заявку — получишь официальный номер. Решения не бывает, но номер красивый.
-</p>
+<h1><%= title %></h1>
 
-<p class="counter">Принято заявок всего: <%= stats.n %> · Рассмотрено: 0 · Одобрено: 0</p>
-
-<% if (error) { %><div class="alert"><%= error %></div><% } %>
+<% if (error) { %><p><%= error %></p><% } %>
 
 <% if (user) { %>
-  <h2>Подать заявку</h2>
-  <form method="post" action="/requests" class="doc">
+  <form method="post" action="/requests">
     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
     <input type="hidden" name="_ts" value="<%= Date.now() %>">
 
-    <div class="honeypot" aria-hidden="true">
+    <div style="display:none" aria-hidden="true">
       <label>Не заполняй это поле</label>
       <input type="text" name="website" tabindex="-1" autocomplete="off">
     </div>
 
-    <label for="category">КАТЕГОРИЯ АБСУРДА</label>
-    <select id="category" name="category">
-      <% ['Бытовое абсурдство', 'Физиология', 'Право', 'Эстетика', 'Прочее'].forEach(function (c) { %>
-        <option value="<%= c %>" <%= values.category === c ? 'selected' : '' %>><%= c %></option>
-      <% }); %>
-    </select>
+    <p>
+      <label for="category">Категория</label><br>
+      <select id="category" name="category">
+        <% categories.forEach(function (c) { %>
+          <option value="<%= c %>" <%= values.category === c ? 'selected' : '' %>><%= c %></option>
+        <% }); %>
+      </select>
+    </p>
 
-    <label for="title">СУТЬ ЗАЯВКИ (8–140 символов)</label>
-    <input type="text" id="title" name="title" maxlength="140" required value="<%= values.title %>"
-           placeholder="Разрешить мне дышать вверх ногами">
+    <p>
+      <label for="title">Заголовок (8–140 символов)</label><br>
+      <input type="text" id="title" name="title" maxlength="140" required value="<%= values.title %>">
+    </p>
 
-    <label for="justification">ОБОСНОВАНИЕ (20–2000 символов)</label>
-    <textarea id="justification" name="justification" maxlength="2000" required
-              placeholder="Я не могу дышать вверх ногами, потому что мои лёгкие не были зарегистрированы как водоплав."><%= values.justification %></textarea>
+    <p>
+      <label for="justification">Текст (20–2000 символов)</label><br>
+      <textarea id="justification" name="justification" maxlength="2000" required><%= values.justification %></textarea>
+    </p>
 
-    <button type="submit">Подать заявку</button>
+    <button type="submit">Отправить</button>
   </form>
 <% } else { %>
-  <h2>Чтобы подать заявку, нужен аккаунт</h2>
-  <div class="doc">
-    <p>Гражданин обязан зарегистрироваться. Без аккаунта заявка остаётся анонимной, а мы её не принимаем — так написано в уставе.</p>
-    <p><a href="/register">Зарегистрироваться</a> · <a href="/login">Я уже гражданин</a></p>
-  </div>
+  <p><a href="/login">Войти</a> или <a href="/register">зарегистрироваться</a>.</p>
 <% } %>
-
-<h2>Примеры заявок, которые нам уже принесли</h2>
-<ul class="examples">
-  <% examples.forEach(function (ex) { %><li><%= ex %></li><% }); %>
-</ul>
-
-<p class="note">
-  Почему на входе стоит защита: этот сайт уже пытаются ломать. У нас стоит лимит попыток,
-  блокировка адреса, honeypot, проверка скорости ввода и CSRF-токены. Ни один из этих пунктов
-  не помешает тебе зайти — он нужен, чтобы пароль «123456» перестал быть ключом от всего.
-</p>
