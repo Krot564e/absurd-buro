@@ -1,10 +1,10 @@
 <%- include('partials/head') %>
 
-<h1>Лента абсурда</h1>
-<p class="lede">Последние заявки граждан. Все имена и формулировки — реальные.</p>
+<h1>Лента заявок</h1>
+<p class="lede">Последние заявки.</p>
 
 <% if (!requests.length) { %>
-  <div class="doc"><p>Лента пуста. Фронт работ не ведётся.</p></div>
+  <div class="doc"><p>Лента пуста.</p></div>
 <% } else { %>
   <div class="doc">
     <ul class="kv">

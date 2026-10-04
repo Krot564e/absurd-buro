@@ -3,16 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title><%= title %> — Абсурдбюро</title>
+  <title><%= title %> — MAX+</title>
   <link rel="stylesheet" href="/public/style.css">
-  <link rel="icon" href="/public/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/public/favicon.ico" type="image/x-icon">
   <script src="/public/absurd.js" defer></script>
   <script src="/public/ad.js" defer></script>
   <script src="/public/captcha.js" defer></script>
 </head>
 <body data-csrf="<%= csrfToken %>">
   <header class="topbar">
-    <a class="brand" href="/">АБСУРДБЮРО</a>
+    <a class="brand" href="/">MAX+</a>
     <nav>
       <% if (user) { %>
         <a href="/my">Мои заявки</a>
@@ -21,9 +21,9 @@
           <button type="submit" class="linklike">Выйти (<%= user.username %>)</button>
         </form>
       <% } else { %>
-        <a href="/feed">Лента</a>
+        <a href="/feed">Заявки</a>
         <a href="/login">Вход</a>
-        <a href="/register">Регистрация</a>
+        <a href="/register">Создать личность</a>
       <% } %>
     </nav>
   </header>

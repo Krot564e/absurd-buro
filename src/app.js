@@ -75,6 +75,7 @@ app.use(
 app.use(express.urlencoded({ extended: false, limit: '10kb' }));
 app.use(express.json({ limit: '10kb' }));
 app.use('/public', express.static(path.join(__dirname, '..', 'public'), { maxAge: '1h' }));
+app.get('/favicon.ico', (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'favicon.ico')));
 
 app.use(
   cookieSession({
@@ -188,17 +189,17 @@ app.use(['/login', '/register'], blockGuard);
 app.get('/', (req, res) => {
   const stats = db.countRequests.get();
   res.render('index', {
-    title: 'Подать заявку',
+    title: 'Приватный мессенджер',
     stats,
     examples: [
-      'Разрешить мне дышать вверх ногами',
-      'Узаконить мой гулкий зонт',
-      'Признать мою корову соседом по этажу',
-      'Выдать мне лицензию на ленивое воскресенье',
-      'Разрешить пить воду только вверх ногами',
-      'Объявить мою тень отдельным гражданином',
-      'Разрешить мне говорить только гласными',
-      'Утвердить мой нос как орган власти',
+      'Сообщения исчезают через 5 секунд после прочтения',
+      'Скрыть онлайн-статус от всех',
+      'Экспорт чатов в txt-файл',
+      'Ночной режим потемнее',
+      'Уведомления без звука от избранных',
+      'Свой акцентный цвет интерфейса',
+      'Отключить статус «печатает»',
+      'Скриншоты чатов с защитой',
     ],
     values: { category: '', title: '', justification: '' },
     error: null,
@@ -206,13 +207,13 @@ app.get('/', (req, res) => {
 });
 
 app.get('/feed', (req, res) => {
-  res.render('feed', { title: 'Лента абсурда', requests: db.listAllRequests.all() });
+  res.render('feed', { title: 'Лента заявок', requests: db.listAllRequests.all() });
 });
 
 app.get('/r/:id', (req, res) => {
   const request = db.getRequestById.get(Number(req.params.id));
   if (!request) {
-    return res.status(404).render('error', { title: 'Такой заявки нет', message: 'Заявка не найдена. Возможно, её рассмотрели и завернули.' });
+    return res.status(404).render('error', { title: 'Заявка не найдена', message: 'Заявка не найдена.' });
   }
   res.render('request', { title: `Заявка ${request.ticket}`, request });
 });
@@ -230,7 +231,7 @@ app.get('/login', (req, res) => {
 app.get('/register', (req, res) => {
   const need = sec.captchaNeeded(req);
   res.render('register', {
-    title: 'Регистрация',
+    title: 'Создать личность',
     values: { email: '', username: '' },
     error: null,
     minLength: sec.MIN_PASSWORD_LENGTH,
@@ -248,7 +249,7 @@ app.post('/register', registerLimit, sec.botTrap, sec.verifyCsrf, (req, res) => 
   const rerender = (error) => {
     const need = sec.captchaNeeded(req);
     res.status(400).render('register', {
-      title: 'Регистрация',
+      title: 'Создать личность',
       values: { email, username },
       error,
       minLength: sec.MIN_PASSWORD_LENGTH,
@@ -383,7 +384,7 @@ app.get('/my', (req, res) => {
   res.render('my', { title: 'Мои заявки', requests: db.listRequestsByUser.all(res.locals.user.id) });
 });
 
-const CATEGORIES = ['Бытовое абсурдство', 'Физиология', 'Право', 'Эстетика', 'Прочее'];
+const CATEGORIES = ['Баг', 'Фича', 'Приватность', 'Оформление', 'Прочее'];
 
 const postRequestLimit = rateLimit({
   windowMs: 60 * 60_000,
@@ -560,9 +561,9 @@ app.use((err, req, res, next) => {
     return res.status(400).render('error', { title: 'Слишком быстро', message: 'Форма была отправлена раньше, чем человек успевает её заполнить.' });
   }
   console.error(err);
-  res.status(500).render('error', { title: 'Абсурд сломался', message: 'Внутренняя ошибка. Мы её уже заметили и смеёмся.' });
+  res.status(500).render('error', { title: 'Ошибка', message: 'Внутренняя ошибка. Попробуй позже.' });
 });
 
 app.listen(PORT, () => {
-  console.log(`  Абсурдбюро работает:  http://localhost:${PORT}`);
+  console.log(`  MAX+ работает:  http://localhost:${PORT}`);
 });

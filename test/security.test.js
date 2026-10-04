@@ -101,7 +101,7 @@ function freePort() {
 }
 
 async function main() {
-  console.log('\n=== Абсурдбюро: тест защиты ===\n');
+  console.log('\n=== MAX+: тест защиты ===\n');
 
   PORT = await freePort();
   BASE = `http://127.0.0.1:${PORT}`;
@@ -250,7 +250,7 @@ async function runAll() {
 
   const short = await req('/requests', {
     method: 'POST',
-    form: { _csrf: lcsrf, _ts: OLD_TS, category: 'Право', title: 'коротко', justification: 'мало текста для обоснования, но всё же' },
+    form: { _csrf: lcsrf, _ts: OLD_TS, category: 'Баг', title: 'коротко', justification: 'мало текста для обоснования, но всё же' },
   });
   ok('слишком короткое обоснование отклонено', short.status === 400);
 
@@ -261,7 +261,7 @@ async function runAll() {
     form: {
       _csrf: rcsrf,
       _ts: OLD_TS,
-      category: 'Право',
+      category: 'Баг',
       title: 'Разрешить мне дышать вверх ногами',
       justification: 'Я не могу дышать вверх ногами, потому что мои лёгкие не зарегистрированы как водоплав.',
     },
@@ -271,7 +271,7 @@ async function runAll() {
   const ticketUrl = created.headers.get('location');
   const ticketPage = await req(ticketUrl);
   ok('страница заявки открывается', ticketPage.status === 200);
-  ok('на странице есть номер заявки', /АБ-[A-Z2-9]{4}-[A-Z2-9]{4}/.test(ticketPage.text));
+  ok('на странице есть номер заявки', /MX-[A-Z2-9]{4}-[A-Z2-9]{4}/.test(ticketPage.text));
 
   const feed = await req('/feed');
   ok('лента заявок открыта', feed.status === 200 && feed.text.includes('вверх ногами'));
@@ -281,7 +281,7 @@ async function runAll() {
     form: {
       _csrf: rcsrf,
       _ts: OLD_TS,
-      category: 'Право',
+      category: 'Баг',
       title: '<script>alert(1)</script>',
       justification: 'Пытаюсь засунуть скрипт в заявку, чтобы проверить экранирование вывода в шаблоне.',
     },

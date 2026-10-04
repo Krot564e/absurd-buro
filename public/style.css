@@ -1,23 +1,30 @@
 * { box-sizing: border-box; }
 
 :root {
-  --paper: #f4efe2;
-  --paper-2: #fbf8ef;
-  --ink: #1f1b16;
-  --ink-soft: #5c544a;
-  --line: #d8cfba;
+  --paper: #07090B;
+  --paper-2: #0C1014;
+  --ink: #E8EDF0;
+  --ink-soft: #7A8B94;
+  --line: #212B32;
   --stamp: #a8232b;
-  --ok: #2f6b3a;
+  --ok: #00C2B8;
+  --accent: #00C2B8;
+  --accent-light: #4EE8D7;
+  --doc-bg: #f4efe2;
+  --doc-bg-2: #fbf8ef;
+  --doc-ink: #1f1b16;
+  --doc-soft: #5c544a;
+  --doc-line: #d8cfba;
 }
 
 html, body { margin: 0; padding: 0; }
 
 body {
   background: var(--paper);
-  background-image: radial-gradient(#00000008 1px, transparent 1px);
+  background-image: radial-gradient(#ffffff08 1px, transparent 1px);
   background-size: 4px 4px;
   color: var(--ink);
-  font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
   font-size: 17px;
   line-height: 1.55;
   min-height: 100vh;
@@ -25,7 +32,7 @@ body {
   flex-direction: column;
 }
 
-a { color: #7a1d22; }
+a { color: var(--accent-light); }
 
 .topbar {
   border-bottom: 3px double var(--ink);
@@ -43,7 +50,7 @@ a { color: #7a1d22; }
   font-weight: 700;
   letter-spacing: 3px;
   text-decoration: none;
-  color: var(--ink);
+  color: var(--accent-light);
   font-size: 20px;
 }
 
@@ -52,7 +59,7 @@ a { color: #7a1d22; }
 .linklike {
   background: none;
   border: none;
-  color: #7a1d22;
+  color: var(--accent-light);
   cursor: pointer;
   padding: 0;
   font-family: "Courier New", monospace;
@@ -75,12 +82,22 @@ h2 { font-size: 24px; margin: 34px 0 10px; border-bottom: 1px solid var(--line);
 .lede { color: var(--ink-soft); margin: 0 0 26px; }
 
 .doc {
-  background: var(--paper-2);
-  border: 1px solid var(--line);
+  background: var(--doc-bg-2);
+  color: var(--doc-ink);
+  border: 1px solid var(--doc-line);
   border-radius: 2px;
   padding: 22px;
-  box-shadow: 3px 3px 0 #00000010;
+  box-shadow: 3px 3px 0 #00000055;
+  font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
 }
+.doc label { color: var(--doc-soft); }
+.doc a { color: #7a1d22; }
+.doc input[type=text], .doc input[type=email], .doc input[type=password], .doc textarea, .doc select {
+  border-color: var(--doc-ink);
+  color: var(--doc-ink);
+}
+.doc .alert { background: #fbeceb; color: var(--doc-ink); }
+.doc h2 { border-bottom-color: var(--doc-line); }
 
 label { display: block; font-family: "Courier New", monospace; font-size: 13px; margin: 14px 0 4px; letter-spacing: 1px; }
 label:first-of-type { margin-top: 0; }
@@ -102,20 +119,22 @@ textarea { min-height: 110px; resize: vertical; }
 button[type=submit], .btn {
   margin-top: 18px;
   padding: 10px 20px;
-  background: var(--ink);
-  color: var(--paper-2);
+  background: var(--accent);
+  color: #06110F;
   border: none;
   border-radius: 2px;
   font-family: "Courier New", monospace;
   font-size: 15px;
+  font-weight: 700;
   cursor: pointer;
 }
-button[type=submit]:hover, .btn:hover { background: #000; }
-.linklike:hover { color: #000; }
+button[type=submit]:hover, .btn:hover { background: var(--accent-light); }
+.linklike:hover { color: var(--accent); }
 
 .alert {
   border-left: 5px solid var(--stamp);
-  background: #fbeceb;
+  background: #2A1518;
+  color: #F0C4C7;
   padding: 11px 14px;
   margin: 0 0 18px;
   font-family: "Courier New", monospace;
@@ -139,6 +158,7 @@ button[type=submit]:hover, .btn:hover { background: #000; }
   font-size: 26px;
   letter-spacing: 4px;
   background: #fff;
+  color: var(--doc-ink);
   border: 2px dashed var(--ink);
   padding: 14px 18px;
   display: inline-block;
@@ -175,7 +195,7 @@ footer {
 footer p { margin: 3px 0; }
 
 ul.examples { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; }
-ul.examples li { font-family: "Courier New", monospace; font-size: 13px; border: 1px dashed var(--line); padding: 8px 10px; background: #fff; }
+ul.examples li { font-family: "Courier New", monospace; font-size: 13px; border: 1px dashed var(--doc-line); padding: 8px 10px; background: #fff; color: var(--doc-ink); }
 
 .note { font-family: "Courier New", monospace; font-size: 13px; color: var(--ink-soft); margin-top: 22px; border-top: 1px solid var(--line); padding-top: 14px; }
 
@@ -196,38 +216,40 @@ ul.examples li { font-family: "Courier New", monospace; font-size: 13px; border:
 .abs-cookie {
   position: fixed; left: 16px; bottom: 16px; z-index: 9000;
   width: min(560px, calc(100vw - 32px));
-  background: var(--paper-2); border: 2px solid var(--ink);
-  padding: 16px 18px; box-shadow: 6px 6px 0 rgba(31, 27, 22, .25);
+  background: var(--doc-bg-2); color: var(--doc-ink); border: 2px solid var(--doc-ink);
+  font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  padding: 16px 18px; box-shadow: 6px 6px 0 rgba(0, 0, 0, .6);
 }
 .abs-cookie h3 { margin: 4px 0 8px; font-size: 17px; }
 .abs-cookie p { font-size: 13px; margin: 6px 0; line-height: 1.45; }
-.abs-small { color: var(--ink-soft); font-size: 11px !important; }
+.abs-small { color: var(--doc-soft); font-size: 11px !important; }
 
 .abs-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .abs-btns button, .abs-yes, .abs-push-btns button {
   font-family: inherit; font-size: 13px; cursor: pointer;
-  background: var(--ink); color: var(--paper-2);
-  border: 2px solid var(--ink); padding: 7px 12px;
+  background: var(--doc-ink); color: var(--doc-bg-2);
+  border: 2px solid var(--doc-ink); padding: 7px 12px;
 }
 .abs-btns button:hover, .abs-yes:hover { background: var(--stamp); border-color: var(--stamp); }
 
 .abs-refuse {
   display: block; text-align: right;
-  font-size: 8px; color: var(--line); text-decoration: none;
+  font-size: 8px; color: var(--doc-line); text-decoration: none;
   margin-top: 6px; margin-right: 4px;
 }
-.abs-refuse:hover { color: var(--ink); text-decoration: underline; }
+.abs-refuse:hover { color: var(--doc-ink); text-decoration: underline; }
 
 .abs-geo {
   position: fixed; top: 70px; right: 16px; z-index: 8900;
   width: min(340px, calc(100vw - 32px));
-  background: var(--paper-2); border: 2px solid var(--ink);
-  padding: 14px 16px; box-shadow: 6px 6px 0 rgba(31, 27, 22, .25);
+  background: var(--doc-bg-2); color: var(--doc-ink); border: 2px solid var(--doc-ink);
+  font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  padding: 14px 16px; box-shadow: 6px 6px 0 rgba(0, 0, 0, .6);
 }
 .abs-geo h3 { margin: 4px 0 10px; font-size: 16px; }
 .abs-geo-list { list-style: none; padding: 0; margin: 0; font-size: 13px; }
-.abs-geo-list li { display: flex; justify-content: space-between; gap: 10px; padding: 5px 0; border-bottom: 1px dashed var(--line); }
-.abs-geo-list li span { color: var(--ink-soft); }
+.abs-geo-list li { display: flex; justify-content: space-between; gap: 10px; padding: 5px 0; border-bottom: 1px dashed var(--doc-line); }
+.abs-geo-list li span { color: var(--doc-soft); }
 .abs-geo-list li b { text-align: right; word-break: break-all; }
 
 .abs-push {
@@ -250,23 +272,24 @@ ul.examples li { font-family: "Courier New", monospace; font-size: 13px; border:
 }
 .abs-mail-card {
   position: relative; width: min(520px, 100%);
-  background: var(--paper); border: 3px solid var(--ink);
-  padding: 26px 28px; box-shadow: 10px 10px 0 rgba(0,0,0,.4);
+  background: var(--doc-bg); color: var(--doc-ink); border: 3px solid var(--doc-ink);
+  font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  padding: 26px 28px; box-shadow: 10px 10px 0 rgba(0,0,0,.5);
 }
 .abs-mail-card h3 { margin: 6px 0 10px; font-size: 20px; }
 .abs-mail-card p { font-size: 14px; line-height: 1.5; }
 .abs-mail-close {
   position: absolute; top: 12px; right: 12px;
-  width: 40px; height: 40px; border: 2px solid var(--ink);
-  background: var(--paper-2); cursor: pointer; font-size: 18px;
+  width: 40px; height: 40px; border: 2px solid var(--doc-ink);
+  background: var(--doc-bg-2); color: var(--doc-ink); cursor: pointer; font-size: 18px;
   transition: top .12s, left .12s, right .12s;
 }
 .abs-mail-form { margin-top: 14px; display: flex; flex-direction: column; gap: 9px; }
 .abs-mail-form input[type="email"] {
   font-family: inherit; font-size: 15px; padding: 10px;
-  border: 2px solid var(--ink); background: #fff;
+  border: 2px solid var(--doc-ink); background: #fff; color: var(--doc-ink);
 }
-.abs-mail-consent { font-size: 12px; color: var(--ink-soft); display: flex; gap: 6px; align-items: center; }
+.abs-mail-consent { font-size: 12px; color: var(--doc-soft); display: flex; gap: 6px; align-items: center; }
 .abs-mail-msg { margin-top: 10px; font-size: 13px; color: var(--stamp); font-weight: bold; }
 .abs-hp { position: absolute; left: -9999px; width: 1px; height: 1px; }
 
@@ -363,4 +386,4 @@ ul.examples li { font-family: "Courier New", monospace; font-size: 13px; border:
   background: #333; color: #aaa; border: 1px solid #666; cursor: default;
   transition: top .1s, left .1s;
 }
-.abs-ad-skip.abs-ad-ready { background: var(--paper); color: var(--ink); cursor: pointer; }
+.abs-ad-skip.abs-ad-ready { background: var(--accent); color: #06110F; border-color: var(--accent); cursor: pointer; }

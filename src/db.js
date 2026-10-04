@@ -156,7 +156,7 @@ function generateTicket() {
   const bytes = crypto.randomBytes(8);
   let out = '';
   for (const b of bytes) out += alphabet[b % alphabet.length];
-  return `АБ-${out.slice(0, 4)}-${out.slice(4)}`;
+  return `MX-${out.slice(0, 4)}-${out.slice(4)}`;
 }
 
 // ---------------------------------------------------------------- Блокировки IP

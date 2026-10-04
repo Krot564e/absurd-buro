@@ -22,7 +22,7 @@
       '<video src="/public/ad-video.mp4" autoplay loop playsinline muted></video>' +
       '</div>' +
       '<div class="abs-ad-foot">' +
-      '<span class="abs-ad-brand">АБСУРДБЮРО · Средство против грязи и совести</span>' +
+      '<span class="abs-ad-brand">Моющее средство БАРС · Грязь не пройдёт</span>' +
       '<button type="button" class="abs-ad-skip">Пропустить через ' + SKIP_AFTER + '</button>' +
       '</div>';
     root.appendChild(box);

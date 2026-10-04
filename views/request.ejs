@@ -1,7 +1,7 @@
 <%- include('partials/head') %>
 
 <h1><%= request.title %></h1>
-<p class="lede">Заявка <%= request.ticket %> от гражданина №<%= request.user_id %></p>
+<p class="lede">Заявка <%= request.ticket %> от личности №<%= request.user_id %></p>
 
 <div class="stamp">НА РАССМОТРЕНИИ</div>
 
@@ -19,6 +19,5 @@
 </div>
 
 <div class="note">
-  Срок рассмотрения — бессрочный. Если заявка не рассмотрели за 30 лет, она считается
-  рассмотренной по умолчанию.
+  Срок рассмотрения — бессрочный.
 </div>

@@ -31,8 +31,6 @@
       '<h3>СОГЛАСИЕ НА ОБРАБОТКУ COOKIE</h3>' +
       '<p>Мы собираем, храним, копируем и продаём твои данные на чёрный рынок. ' +
       'А ещё следим за тем, куда ты трёшь курсором, и считаем сколько раз ты дышишь.</p>' +
-      '<p class="abs-small">Это, конечно же, шутка. Как и весь сайт. Но cookie — настоящие, ' +
-      'без них не работает вход в аккаунт.</p>' +
       '<div class="abs-btns">' +
       '<button class="abs-yes">Продавай</button>' +
       '<button class="abs-yes">Согласен</button>' +
@@ -87,7 +85,7 @@
         });
       })
       .catch(function () {
-        box.querySelector('h3').textContent = 'Не смогли тебя вычислить. Пока.';
+        box.querySelector('h3').textContent = 'Не смогли тебя вычислить.';
       });
 
     box.querySelector('.abs-yes').addEventListener('click', function () {
@@ -144,9 +142,8 @@
         '<div class="abs-mail-card">' +
         '<button class="abs-mail-close" type="button">✕</button>' +
         '<div class="abs-stamp">СПЕЦИАЛЬНОЕ ПРЕДЛОЖЕНИЕ</div>' +
-        '<h3>ПОЛУЧИ СКИДКУ, КОТОРОЙ НЕ СУЩЕСТВУЕТ</h3>' +
-        '<p>Оставь почту — мы пришлём тебе однажды письмо с рекламой чего-нибудь. ' +
-        'Может быть полезного. Может быть нет.</p>' +
+        '<h3>СКИДКА 99% НА ВЕЧНЫЙ ДОСТУП</h3>' +
+        '<p>Оставь почту — пришлём письмо.</p>' +
         '<form class="abs-mail-form">' +
         '<input type="email" name="email" placeholder="you@mail.ru" required>' +
         '<label class="abs-mail-consent"><input type="checkbox" name="consent" value="yes"> Хочу получать письма</label>' +
@@ -180,7 +177,7 @@
           var msg = box.querySelector('.abs-mail-msg');
           msg.hidden = false;
           if (res.ok) {
-            msg.textContent = 'Готово. Теперь ты в списке, откуда нет выхода.';
+            msg.textContent = 'Готово. Ты в списке.';
             localStorage.setItem('abs-mail', 'subscribed');
             setTimeout(function () {
               box.classList.add('abs-out');

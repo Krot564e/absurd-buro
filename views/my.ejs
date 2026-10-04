@@ -1,11 +1,11 @@
 <%- include('partials/head') %>
 
 <h1>Мои заявки</h1>
-<p class="lede">Гражданин: <%= user.username %> · с нами с <%= (user.created_at || '').slice(0, 10) %></p>
+<p class="lede">Личность: <%= user.username %> · с нами с <%= (user.created_at || '').slice(0, 10) %></p>
 
 <% if (!requests.length) { %>
   <div class="doc">
-    <p>Пока ни одной заявки. Это подозрительно и некрасиво.</p>
+    <p>Пока ни одной заявки.</p>
     <p><a href="/">Подать первую</a></p>
   </div>
 <% } else { %>
@@ -22,5 +22,5 @@
 <% } %>
 
 <div class="note">
-  Все заявки граждан видны в <a href="/feed">общей ленте</a> — это бюрократия, она публична.
+  Все заявки видны в <a href="/feed">общей ленте</a>.
 </div>
