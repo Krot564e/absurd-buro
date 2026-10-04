@@ -1,4 +1,6 @@
 node_modules/
 data/
 .env
-*.log
+*.logcf.log
+cf.err
+lt.log
