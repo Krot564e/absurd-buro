@@ -314,24 +314,30 @@ async function runAll() {
 
   // ---------------------------------------------------------------- капча
   const captchaPage = await req('/login');
-  const captchaMatch = captchaPage.text.match(/ПРИМЕР:\s*(\d+)\s*\+\s*(\d+)/);
-  ok('после серии неудач на форме появляется капча', Boolean(captchaMatch));
+  const hasWidget = captchaPage.text.includes('data-abs-captcha');
+  ok('после серии неудач на форме появляется капча', hasWidget);
   const ccsrf = await csrfFrom(captchaPage);
 
   const wrongCaptcha = await req('/login', {
     method: 'POST',
-    form: { _csrf: ccsrf, _ts: OLD_TS, login: 'grazhdanin', password: GOOD_PASSWORD, captcha: '99999' },
+    form: { _csrf: ccsrf, _ts: OLD_TS, login: 'grazhdanin', password: GOOD_PASSWORD, captcha: '' },
   });
-  ok('неверная капча не пускает', wrongCaptcha.status === 400 && wrongCaptcha.text.includes('Ответь на пример'));
+  ok('капча без попыток не пускает', wrongCaptcha.status === 400 && wrongCaptcha.text.includes('Ответь на пример'));
+
+  const tries = [];
+  for (let i = 0; i < 3; i++) {
+    const r = await req('/captcha-try', { method: 'POST', form: { _csrf: ccsrf } });
+    tries.push(JSON.parse(r.text));
+  }
+  ok('после трёх попыток капча засчитывается', Boolean(tries[2] && tries[2].done), JSON.stringify(tries[2]));
+  ok('новая попытка меняет номер', tries[0].tries === 1 && tries[1].tries === 2);
 
   const page2 = await req('/login');
-  const m2 = page2.text.match(/ПРИМЕР:\s*(\d+)\s*\+\s*(\d+)/);
-  const answer = m2 ? Number(m2[1]) + Number(m2[2]) : 0;
   const withCaptcha = await req('/login', {
     method: 'POST',
-    form: { _csrf: await csrfFrom(page2), _ts: OLD_TS, login: 'grazhdanin', password: GOOD_PASSWORD, captcha: String(answer) },
+    form: { _csrf: await csrfFrom(page2), _ts: OLD_TS, login: 'grazhdanin', password: GOOD_PASSWORD, captcha: 'ok' },
   });
-  ok('вход с верной капчей проходит', withCaptcha.status === 302, `got ${withCaptcha.status}`);
+  ok('вход после капчи проходит', withCaptcha.status === 302, `got ${withCaptcha.status}`);
 
   // ---------------------------------------------------------------- перебор пароля
   jar.clear();

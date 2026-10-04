@@ -24,8 +24,9 @@
   <input type="password" id="password" name="password" required autocomplete="new-password">
 
   <% if (needCaptcha) { %>
-    <label for="captcha">ПРИМЕР: <%= captchaQuestion %> = ?</label>
-    <input type="text" id="captcha" name="captcha" inputmode="numeric" required autocomplete="off">
+    <div class="abs-captcha-slot" data-abs-captcha>
+      <input type="hidden" id="captcha" name="captcha" value="">
+    </div>
   <% } %>
 
   <button type="submit">Зарегистрироваться</button>

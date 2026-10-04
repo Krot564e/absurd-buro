@@ -98,21 +98,34 @@ function botTrap(req, res, next) {
 
 // ---------------------------------------------------------------- Капча
 
-// Арифметическая капча: решает живого человека за секунду и почти не решается
-// тупым ботом, который тупо шлёт POST без разбора страницы.
-function makeCaptcha(req) {
-  const a = crypto.randomInt(2, 10);
-  const b = crypto.randomInt(2, 10);
-  req.session.captcha = { answer: a + b };
-  return `${a} + ${b}`;
+// Капча выглядит как настоящая Google, но подтвердиться нельзя: сервер
+// считает попытки, и пропускает только после трёх честных попыток.
+// Задания рисует клиент, серверу нужен только счётчик и вердикт.
+const CAPTCHA_TRIES_TO_PASS = 3;
+
+function captchaState(req) {
+  if (!req.session.captcha) req.session.captcha = { tries: 0, id: crypto.randomBytes(6).toString('hex') };
+  return req.session.captcha;
 }
 
+function newCaptcha(req) {
+  const st = captchaState(req);
+  st.tries = 0;
+  st.id = crypto.randomBytes(6).toString('hex');
+  return st.id;
+}
+
+// Попытка клиента: при первой она же даёт id задания.
+function captchaTry(req) {
+  const st = captchaState(req);
+  st.tries += 1;
+  return { tries: st.tries, done: st.tries >= CAPTCHA_TRIES_TO_PASS, id: st.id };
+}
+
+// Проверка при отправке формы: нужно собрать нужное число попыток.
 function checkCaptcha(req) {
-  const stored = req.session && req.session.captcha;
-  const value = Number(req.body && req.body.captcha);
-  delete req.session.captcha;
-  if (!stored) return false;
-  return Number.isInteger(value) && value === stored.answer;
+  const st = req.session && req.session.captcha;
+  return Boolean(st && st.tries >= CAPTCHA_TRIES_TO_PASS);
 }
 
 function captchaNeeded(req) {
@@ -150,7 +163,8 @@ module.exports = {
   verifyCsrf,
   validatePassword,
   botTrap,
-  makeCaptcha,
+  captchaTry,
+  newCaptcha,
   checkCaptcha,
   captchaNeeded,
   markCaptchaNeeded,

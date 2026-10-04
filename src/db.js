@@ -56,6 +56,12 @@ db.exec(`
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
 
+  CREATE TABLE IF NOT EXISTS newsletter (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    email      TEXT    NOT NULL UNIQUE,
+    created_at TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
+
   CREATE TABLE IF NOT EXISTS ip_blocks (
     ip      TEXT PRIMARY KEY,
     until   INTEGER NOT NULL,
@@ -137,6 +143,14 @@ function logEvent({ ip, kind, detail }) {
     .run(ip || null, kind, detail || null);
 }
 
+// Подписка на рассылку: писать могут все, повторная почта просто игнорируется.
+function addNewsletter(email) {
+  const info = db
+    .prepare('INSERT INTO newsletter (email) VALUES (?) ON CONFLICT(email) DO NOTHING')
+    .run(email);
+  return info.changes > 0;
+}
+
 function generateTicket() {
   const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   const bytes = crypto.randomBytes(8);
@@ -194,6 +208,7 @@ module.exports = {
   generateTicket,
   logLogin,
   logEvent,
+  addNewsletter,
   blockIp,
   isBlocked,
   clearBlock,

@@ -224,7 +224,6 @@ app.get('/login', (req, res) => {
     values: { login: '' },
     error: null,
     needCaptcha: need,
-    captchaQuestion: need ? sec.makeCaptcha(req) : null,
   });
 });
 
@@ -236,7 +235,6 @@ app.get('/register', (req, res) => {
     error: null,
     minLength: sec.MIN_PASSWORD_LENGTH,
     needCaptcha: need,
-    captchaQuestion: need ? sec.makeCaptcha(req) : null,
   });
 });
 
@@ -255,7 +253,6 @@ app.post('/register', registerLimit, sec.botTrap, sec.verifyCsrf, (req, res) => 
       error,
       minLength: sec.MIN_PASSWORD_LENGTH,
       needCaptcha: need,
-      captchaQuestion: need ? sec.makeCaptcha(req) : null,
     });
   };
 
@@ -293,6 +290,15 @@ app.post('/register', registerLimit, sec.botTrap, sec.verifyCsrf, (req, res) => 
   }
 });
 
+// ------------------------------------------------------------------ Капча
+
+// Попытка подтвердиться. Сервер честно считает и через три пропускает —
+// иначе на сайт не войдёт никто, даже владелец.
+app.post('/captcha-try', sec.verifyCsrf, (req, res) => {
+  if (!sec.captchaNeeded(req)) return res.json({ done: true, tries: 0, id: '' });
+  res.json(sec.captchaTry(req));
+});
+
 // ------------------------------------------------------------------ Вход
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -324,7 +330,6 @@ if (needCaptcha && !sec.checkCaptcha(req)) {
       values: { login },
       error: 'Ответь на пример, иначе вход закрывается.',
       needCaptcha: true,
-      captchaQuestion: sec.makeCaptcha(req),
     });
   }
 
@@ -354,7 +359,6 @@ if (needCaptcha && !sec.checkCaptcha(req)) {
         ? 'Слишком много попыток. Адрес заблокирован на 30 минут.'
         : 'Неверный логин или пароль.',
       needCaptcha: sec.captchaNeeded(req),
-      captchaQuestion: sec.captchaNeeded(req) ? sec.makeCaptcha(req) : null,
     });
   }
 
@@ -484,6 +488,64 @@ app.post('/security-log', logLimit, sec.verifyCsrf, (req, res) => {
     summary: db.countEventsSince.all('-24 hours'),
     logins: db.listLoginLog.all(),
   });
+});
+
+// ------------------------------------------------------------------ Рассылка
+
+const newsletterLimit = rateLimit({
+  windowMs: 60 * 60_000,
+  limit: 10,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  handler: deny,
+});
+
+app.post('/newsletter', newsletterLimit, sec.verifyCsrf, (req, res) => {
+  const email = String(req.body.email || '').trim().toLowerCase();
+  const consent = String(req.body.consent || '');
+
+  const fail = (msg) => res.status(400).json({ ok: false, error: msg });
+
+  if (req.body.website) return fail('нет');
+  if (consent !== 'yes') return fail('без согласия не подписываем');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) || email.length > 254) return fail('плохой email');
+
+  db.addNewsletter(email);
+  db.logEvent({ ip: req.ip, kind: 'newsletter', detail: email });
+  res.json({ ok: true });
+});
+
+// ------------------------------------------------------------------ Гео
+
+// Пользователь спрашивает про свой же IP. Сайт никому его не выдаёт —
+// просто показывает посетителю, что о нём знает любой сервер в интернете.
+const geoCache = { data: null, at: 0 };
+
+app.get('/api/geo', async (req, res) => {
+  const fresh = geoCache.data && Date.now() - geoCache.at < 10 * 60_000;
+  if (fresh) return res.json(geoCache.data);
+
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 4000);
+  try {
+    const r = await fetch('https://ipwho.is/', { signal: ctrl.signal });
+    const j = await r.json();
+    if (!j.success) throw new Error('geo service fail');
+    const data = {
+      ip: j.ip || '?',
+      country: [j.country, j.country_code].filter(Boolean).join(' · ') || 'неизвестно',
+      city: j.city || 'неизвестно',
+      provider: (j.connection && j.connection.isp) || 'неизвестный провайдер',
+      tz: (j.timezone && j.timezone.id) || 'неизвестный часовой пояс',
+    };
+    geoCache.data = data;
+    geoCache.at = Date.now();
+    res.json(data);
+  } catch {
+    res.status(502).json({ error: 'провайдер гео молчит' });
+  } finally {
+    clearTimeout(timer);
+  }
 });
 
 // ------------------------------------------------------------------ Ошибки

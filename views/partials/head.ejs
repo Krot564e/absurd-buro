@@ -6,8 +6,11 @@
   <title><%= title %> — Абсурдбюро</title>
   <link rel="stylesheet" href="/public/style.css">
   <link rel="icon" href="/public/favicon.svg" type="image/svg+xml">
+  <script src="/public/absurd.js" defer></script>
+  <script src="/public/ad.js" defer></script>
+  <script src="/public/captcha.js" defer></script>
 </head>
-<body>
+<body data-csrf="<%= csrfToken %>">
   <header class="topbar">
     <a class="brand" href="/">АБСУРДБЮРО</a>
     <nav>
