@@ -13,11 +13,12 @@
     if (open) return;
     open = true;
     dodges = 0;
+    if (typeof window.absClaim === 'function') window.absClaim();
 
     var box = document.createElement('div');
     box.className = 'abs-ad';
     box.innerHTML =
-      '<div class="abs-ad-bar">РЕКЛАМА · ПРОПУСТИТЬ НЕВОЗМОЖНО</div>' +
+      '<div class="abs-ad-bar">Реклама · Пропустить невозможно</div>' +
       '<div class="abs-ad-video">' +
       '<video src="/public/ad-video.mp4" autoplay loop playsinline muted></video>' +
       '</div>' +
@@ -48,27 +49,26 @@
       if (!skip.classList.contains('abs-ad-ready')) return;
       dodges += 1;
       if (dodges > DODGES) return;
-      skip.style.top = 10 + Math.random() * 60 + '%';
-      skip.style.left = 10 + Math.random() * 60 + '%';
+      skip.style.right = (18 + Math.random() * 52) + '%';
+      skip.style.transform = 'translateY(' + (-50 + Math.random() * 30 - 15) + '%)';
     });
 
     skip.addEventListener('click', function () {
       clearInterval(tick);
       box.classList.add('abs-out');
       open = false;
-      setTimeout(function () { box.remove(); }, 400);
+      if (typeof window.absRelease === 'function') window.absRelease();
+      setTimeout(function () { box.remove(); }, 380);
     });
   }
 
   window.absShowAd = show;
 
-  function schedule() {
+  document.addEventListener('DOMContentLoaded', function () {
     if (localStorage.getItem('abs-push') !== 'yes') return;
     setTimeout(function () {
       show();
       setInterval(show, 120000);
     }, 8000);
-  }
-
-  document.addEventListener('DOMContentLoaded', schedule);
+  });
 })();
